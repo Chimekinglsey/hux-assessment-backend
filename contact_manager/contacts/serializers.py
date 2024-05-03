@@ -2,8 +2,20 @@
 from rest_framework import serializers
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth.models import User
+from .models import Contact
+
+
+class ContactSerializer(serializers.ModelSerializer):
+    """
+    Serializer for the Contact model.
+    """
+    class Meta:
+        model = Contact
+        fields = ['id', 'first_name', 'last_name', 'phone_number']
+
 
 class UserTokenSerializer(serializers.Serializer):
+    """ Serializes user token """
     access = serializers.CharField(read_only=True)
     refresh = serializers.CharField(read_only=True)
 
