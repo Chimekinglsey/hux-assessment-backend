@@ -8,5 +8,5 @@ class MyTokenObtainPairView(TokenObtainPairView):
 
 class MyTokenRefreshView(TokenRefreshView):
     """
-    Custom token refresh view.
+    Custom token refresh view.p
     """

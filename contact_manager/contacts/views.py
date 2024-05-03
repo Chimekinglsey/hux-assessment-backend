@@ -1,56 +1,39 @@
-from django.shortcuts import get_object_or_404
+""" This module contains business logic for the contacts app. """
 from rest_framework import status
-from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from .models import Contact
-from .serializers import ContactSerializer # django Restframework is very efficient for handling request and response
+from rest_framework.views import APIView
+from .serializers import UserTokenSerializer, RefreshToken
 
-@api_view(['POST'])
-def create_contact(request):
-    """
-    Create a new contact.
-    """
-    serializer = ContactSerializer(data=request.data)
-    if serializer.is_valid():
+from .serializers import UserSerializer
+
+class UserRegistrationView(APIView):
+    def post(self, request):
+        serializer = UserSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
         serializer.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(status=status.HTTP_201_CREATED)
 
-@api_view(['GET'])
-def list_contacts(request):
-    """
-    Retrieve a list of all contacts.
-    """
-    contacts = Contact.objects.all()
-    serializer = ContactSerializer(contacts, many=True)
-    return Response(serializer.data)
+class UserLoginView(APIView):
+    def post(self, request):
+        serializer = UserTokenSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.validated_data['user']
+        refresh = RefreshToken.for_user(user)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
-@api_view(['GET'])
-def retrieve_contact(request, pk):
-    """
-    Retrieve a single contact by ID.
-    """
-    contact = get_object_or_404(Contact, pk=pk)
-    serializer = ContactSerializer(contact)
-    return Response(serializer.data)
 
-@api_view(['PUT'])
-def update_contact(request, pk):
-    """
-    Update a contact.
-    """
-    contact = get_object_or_404(Contact, pk=pk)
-    serializer = ContactSerializer(contact, data=request.data)
-    if serializer.is_valid():
-        serializer.save()
-        return Response(serializer.data)
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+class UserLogoutView(APIView):
+    def post(self, request):
+        # Get the access token from the request headers
+        auth_header = request.META.get('HTTP_AUTHORIZATION')
+        if not auth_header:
+            return Response({'error': 'No authorization header provided'}, status=status.HTTP_401_UNAUTHORIZED)
 
-@api_view(['DELETE'])
-def delete_contact(request, pk):
-    """
-    Delete a contact.
-    """
-    contact = get_object_or_404(Contact, pk=pk)
-    contact.delete()
-    return Response(status=status.HTTP_204_NO_CONTENT)
+        token = auth_header.split()[1]
+        # Blacklist/Revoke the token using your JWT library method
+        refresh = RefreshToken(token)
+        refresh.blacklist()
+        response = Response(status=status.HTTP_205_RESET_CONTENT)
+        # Add redirect information to the response header
+        response.set_cookie('next', '/login/', httponly=True)
+        return response
