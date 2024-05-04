@@ -8,13 +8,16 @@ from .models import Contact
 from django.db.models import Q
 from .serializers import UserSerializer
 from django.contrib.auth.models import User
+# from django.views.decorators.http import require_POST
 
 
-class UserRegistrationView(generics.CreateAPIView):
+class UserRegistrationView(APIView):
     """Handle User Signup"""
-    queryset = User.objects.all()
-    permission_classes = [AllowAny]
-    serializer_class = UserSerializer
+    def post(self, request):
+        serializer = UserSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(status=status.HTTP_201_CREATED)
 
 
 class UserLoginView(APIView):
