@@ -1,4 +1,3 @@
-```markdown
 # Contact Manager
 
 This project is a simple web application that allows users to manage contacts.
@@ -87,4 +86,3 @@ python manage.py test
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-```
