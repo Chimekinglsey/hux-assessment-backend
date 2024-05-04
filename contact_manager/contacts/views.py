@@ -1,43 +1,40 @@
 """ This module contains business logic for the contacts app. """
-from rest_framework import status
+from rest_framework import status, generics
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from .serializers import UserTokenSerializer, RefreshToken, ContactSerializer
-from rest_framework.permissions import IsAuthenticated
+from .serializers import LoginSerializer, RefreshToken, ContactSerializer
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from .models import Contact
 from django.db.models import Q
 from .serializers import UserSerializer
+from django.contrib.auth.models import User
 
 
-class UserRegistrationView(APIView):
+class UserRegistrationView(generics.CreateAPIView):
     """Handle User Signup"""
-    def post(self, request):
-        serializer = UserSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(status=status.HTTP_201_CREATED)
+    queryset = User.objects.all()
+    permission_classes = [AllowAny]
+    serializer_class = UserSerializer
+
 
 class UserLoginView(APIView):
     """Handles user credential validation for login"""
     def post(self, request):
         """logs the user in if credentials are correct"""
-        serializer = UserTokenSerializer(data=request.data)
+        serializer = LoginSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.validated_data['user']
         refresh = RefreshToken.for_user(user)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-class CreateContactView(APIView):
-    """ Adds a new contact to the owners contact list"""
-    permission_classes = [IsAuthenticated]  # Requires user authentication
+class CreateContactView(generics.CreateAPIView):
+    permission_classes = [IsAuthenticated]
+    queryset = Contact.objects.all()
+    serializer_class = ContactSerializer
 
-    def post(self, request):
-        """ post is required"""
-        serializer = ContactSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save(owner=request.user)  # Link contact to authenticated user
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    def perform_create(self, serializer):
+        serializer.save(owner=self.user) # Associate the contact with the current user
 
 
 class ContactListView(APIView):
