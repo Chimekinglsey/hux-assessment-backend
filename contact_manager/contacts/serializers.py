@@ -36,20 +36,23 @@ class LoginSerializer(serializers.Serializer):
             raise serializers.ValidationError('Please provide both username and password.')
 
         user = authenticate(username=username, password=password)
+        print(user)
         if not user:
             raise serializers.ValidationError('Invalid credentials.')
 
         attrs['user'] = user
+        print(attrs)
         return attrs
 
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['username', 'email', 'password']
+        fields = ['username', 'password']
         extra_kwargs = {'password': {'write_only': True}}
 
     def create(self, validated_data):
-        user = User.objects.create_user(validated_data['username'], validated_data['email'], validated_data['password'])
+        print(validated_data)
+        user = User.objects.create_user(validated_data['username'], validated_data['password'])
         user.save()
         return user
