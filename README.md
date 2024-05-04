@@ -83,6 +83,4 @@ python manage.py test
 
 - [Chika Chime](https://github.com/chimekinglsey)
 
-## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
