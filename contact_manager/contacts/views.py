@@ -6,11 +6,9 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.tokens import RefreshToken
 from .serializers import UserSerializer, TokenPairSerializer, ContactSerializer
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.permissions import IsAuthenticated
 from .models import Contact
 from django.db.models import Q
-from django.contrib.auth.models import User
-# from django.views.decorators.http import require_POST
 
 class TokenObtainPair(TokenObtainPairView):
     serializer_class = TokenPairSerializer
@@ -49,7 +47,6 @@ class ContactListView(APIView):
             )
 
         serializer = ContactSerializer(contacts, many=True)
-        print(serializer.data)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
