@@ -14,6 +14,7 @@ Before you begin, ensure you have met the following requirements:
 1. Clone the repository:
 ```
 git clone https://github.com/chimekinglsey/hub-assessment-backend.git
+cd hub-assessment-backend
 ```
 
 ## Configuration
@@ -62,6 +63,7 @@ pip install -r requirements.txt
 5. Apply migrations to the database:
 
 ```
+cd contact_manager
 python manage.py makemigrations
 python manage.py migrate
 ```
