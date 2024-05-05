@@ -2,14 +2,18 @@
 from rest_framework import status, generics
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from .serializers import LoginSerializer, RefreshToken, ContactSerializer
+# from .serializers import LoginSerializer, RefreshToken, ContactSerializer
+from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework_simplejwt.tokens import RefreshToken
+from .serializers import UserSerializer, TokenPairSerializer, ContactSerializer
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from .models import Contact
 from django.db.models import Q
-from .serializers import UserSerializer
 from django.contrib.auth.models import User
 # from django.views.decorators.http import require_POST
 
+class TokenObtainPair(TokenObtainPairView):
+    serializer_class = TokenPairSerializer
 
 class UserRegistrationView(APIView):
     """Handle User Signup"""
@@ -20,24 +24,13 @@ class UserRegistrationView(APIView):
         return Response(status=status.HTTP_201_CREATED)
 
 
-class UserLoginView(APIView):
-    """Handles user credential validation for login"""
-    def post(self, request):
-        """logs the user in if credentials are correct"""
-        serializer = LoginSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        user = serializer.validated_data['user']
-        refresh = RefreshToken.for_user(user)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-
 class CreateContactView(generics.CreateAPIView):
     permission_classes = [IsAuthenticated]
     queryset = Contact.objects.all()
     serializer_class = ContactSerializer
 
     def perform_create(self, serializer):
-        serializer.save(owner=self.user) # Associate the contact with the current user
+        serializer.save(owner=self.request.user) # Associate the contact with the current user
 
 
 class ContactListView(APIView):
@@ -56,6 +49,7 @@ class ContactListView(APIView):
             )
 
         serializer = ContactSerializer(contacts, many=True)
+        print(serializer.data)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
@@ -95,7 +89,7 @@ class DeleteContactView(APIView):
         try:
             contact = Contact.objects.get(pk=pk, owner=request.user)  # Verify user ownership
             contact.delete()
-            return Response(status=status.HTTP_204_NO_CONTENT)
+            return Response(status=status.HTTP_200_OK)
         except Contact.DoesNotExist:
             return Response({'error': 'Contact not found'}, status=status.HTTP_404_NOT_FOUND)
 
