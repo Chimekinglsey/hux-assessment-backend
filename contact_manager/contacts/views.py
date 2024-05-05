@@ -2,7 +2,6 @@
 from rest_framework import status, generics
 from rest_framework.response import Response
 from rest_framework.views import APIView
-# from .serializers import LoginSerializer, RefreshToken, ContactSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.tokens import RefreshToken
 from .serializers import UserSerializer, TokenPairSerializer, ContactSerializer
@@ -16,6 +15,7 @@ class TokenObtainPair(TokenObtainPairView):
 class UserRegistrationView(APIView):
     """Handle User Signup"""
     def post(self, request):
+        """Create a new user"""
         serializer = UserSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
@@ -23,6 +23,7 @@ class UserRegistrationView(APIView):
 
 
 class CreateContactView(generics.CreateAPIView):
+    """Create a new contact"""
     permission_classes = [IsAuthenticated]
     queryset = Contact.objects.all()
     serializer_class = ContactSerializer
@@ -52,7 +53,7 @@ class ContactListView(APIView):
 
 class RetrieveContactView(APIView):
     """Retrieves a single contact using provided primary key"""
-    permission_classes = [IsAuthenticated]  # Requires user authentication
+    permission_classes = [IsAuthenticated]
 
     def get(self, request, pk):
         try:
@@ -65,13 +66,13 @@ class RetrieveContactView(APIView):
 
 class UpdateContactView(APIView):
     """Updates a single contact using provided primary key"""
-    permission_classes = [IsAuthenticated]  # Requires user authentication
+    permission_classes = [IsAuthenticated]
 
     def put(self, request, pk):
         try:
             contact = Contact.objects.get(pk=pk, owner=request.user)  # Verify user ownership
             serializer = ContactSerializer(contact, data=request.data, partial=True)
-            serializer.is_valid(raise_exception=True)
+            serializer.is_valid(raise_exception=True) # Raise exceptioin for invalid data
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
         except Contact.DoesNotExist:
@@ -80,7 +81,7 @@ class UpdateContactView(APIView):
 
 
 class DeleteContactView(APIView):
-    permission_classes = [IsAuthenticated]  # Requires user authentication
+    permission_classes = [IsAuthenticated]
 
     def delete(self, request, pk):
         try:
@@ -98,11 +99,11 @@ class UserLogoutView(APIView):
         if not auth_header:
             return Response({'error': 'No authorization header provided'}, status=status.HTTP_401_UNAUTHORIZED)
 
-        token = auth_header.split()[1]
+        token = auth_header.split()[1] # retrieve the token discarding `Bearer`
         # Blacklist/Revoke the token using your JWT library method
         refresh = RefreshToken(token)
         refresh.blacklist()
         response = Response(status=status.HTTP_205_RESET_CONTENT)
-        # Add redirect information to the response header
+        # Add redirect information to the response header to login page
         response.set_cookie('next', '/login/', httponly=True)
         return response

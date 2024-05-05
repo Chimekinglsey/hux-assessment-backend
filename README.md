@@ -12,20 +12,8 @@ Before you begin, ensure you have met the following requirements:
 ## Installation
 
 1. Clone the repository:
-
-**git clone https://github.com/chimekinglsey/hub-assessment-backend.git**
-
-
-2. Navigate to the project directory:
-
 ```
-cd hub-assessment-backend
-```
-
-3. Install the required Python dependencies:
-
-```
-pip install -r requirements.txt
+git clone https://github.com/chimekinglsey/hub-assessment-backend.git
 ```
 
 ## Configuration
@@ -33,33 +21,80 @@ pip install -r requirements.txt
 1. Create a `.env` file in the project directory and configure the following environment variables:
 
 ```
-SECRET_KEY=your_secret_key
-DEBUG=True  # Set to False in production
+DB_NAME=your_database_name
+DB_USER=your_database_user
+DB_PASSWORD=your_database_password
+DB_HOST=your_database_host
+DB_PORT=your_database_port
+SECRETS=your_secrets_key
+DJANGO_SECRETS=your_django_secrets_key
 ```
 
-## Database Setup
-
-1. Make migrations:
-
-```
-python manage.py makemigrations
-```
-
-2. Apply migrations:
-
-```
-python manage.py migrate
-```
 
 ## Running the Application
 
-1. Start the Django development server:
+Follow these steps to run the application:
+
+### Backend (Django)
+
+1. Create a virtual environment (optional but recommended):
+
+```
+python3 -m venv venv
+```
+
+2. Activate the virtual environment:
+
+```
+source venv/bin/activate
+```
+
+3. Install the required Python packages:
+
+```
+pip install -r requirements.txt
+```
+
+4. Configure your database:
+   - Create a MySQL database named `contact_manager`.
+   - Ensure that the user has permissions to administer the database.
+
+5. Apply migrations to the database:
+
+```
+python manage.py makemigrations
+python manage.py migrate
+```
+
+6. Start the Django development server:
 
 ```
 python manage.py runserver
 ```
 
-2. Access the application in your web browser at `http://localhost:8000/`
+7. Access the application in your web browser at `http://localhost:8000/`
+
+### Frontend (React)
+
+1. Navigate to the frontend directory:
+
+```
+cd hux-assessment-frontend
+```
+
+2. Install dependencies:
+
+```
+npm install
+```
+
+3. Start the React development server:
+
+```
+npm run dev
+```
+
+4. Access the application in your web browser at the provided URL (typically `http://localhost:5173/`)
 
 ## API Endpoints
 
@@ -79,7 +114,7 @@ To run tests, execute the following command:
 python manage.py test
 ```
 
-## Contributors
+Please ensure that you have MySQL installed and configured correctly before running the application. If you encounter any issues or have any questions, feel free to reach out for assistance.## Contributors
 
 - [Chika Chime](https://github.com/chimekinglsey)
 
