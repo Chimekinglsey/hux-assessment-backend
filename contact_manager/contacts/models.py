@@ -1,9 +1,10 @@
 from django.db import models
 from django.contrib.auth.models import User
 
+
 class Contact(models.Model):
     """Model for storing contact information"""
-    owner = models.ForeignKey(User, on_delete=models.CASCADE) 
+    owner = models.ForeignKey(User, on_delete=models.CASCADE) # Associates a contact to a user
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
     phone_number = models.CharField(max_length=20)

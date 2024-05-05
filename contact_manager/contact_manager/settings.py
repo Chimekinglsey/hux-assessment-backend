@@ -15,6 +15,7 @@ SECRET_KEY = 'django-insecure-4hog&hz^d00v$nk9)4=j1j^a9u9)iu6by5u%cj+ipx1y0opz5c
 DEBUG = True
 
 ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS').split(',') if os.environ.get('ALLOWED_HOSTS') else ['*']
+# In production, ALLOWED_HOSTS will be fetched from a secure cloud like AWS Secrets Manager or Parameter store
 
 
 # Application definition
@@ -26,10 +27,11 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    # NOTE: custom apps
     'rest_framework',
     'rest_framework_simplejwt',
     'contacts',
-    'corsheaders',
+    'corsheaders', # This allows other origins (our frontend) to access our server from the browser.
 ]
 
 MIDDLEWARE = [
@@ -100,7 +102,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",
+    "http://localhost:5173", # NOTE: for security reasons, only our frontend origin is allowed
 ]
 
 # Internationalization
@@ -129,9 +131,10 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 #######################################
 """ CUSTOM SETTINGS """
+# Since our requirements are basic fields, we will stick with the default User object that django provides
+# We will use JWT as our default authentication class
 #######################################
 AUTH_USER_MODEL = 'auth.User'
-# We will use JWT as our default authentication class
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
@@ -139,7 +142,7 @@ REST_FRAMEWORK = {
 }
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=30),# NOTE: How long a token is considered valid
-    "REFRESH_TOKEN_LIFETIME": timedelta(days=3), # NOTE: Period before refresh
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=3), # NOTE: Period before refresh token expires and user forced to login with credentials
     "ROTATE_REFRESH_TOKENS": True,
     "SLIDING_TOKEN_REFRESH_EXP_CLAIM": "refresh_exp",
     "SLIDING_TOKEN_LIFETIME": timedelta(minutes=30),
